@@ -5,9 +5,6 @@ import os
 
 
 
-
-
-
 # Configuración de la página
 st.set_page_config(page_title="Bagash AI", page_icon="🐼")
 st.title("Bagash AI")

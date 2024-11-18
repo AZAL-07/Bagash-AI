@@ -1,7 +1,5 @@
 .streamlit
 
-
-*.txt
 .env
 myenv
 venv/

@@ -2,6 +2,11 @@ import streamlit as st
 from groq import Groq
 from gtts import gTTS
 import os
+import subprocess
+
+# Imprimir las librerías instaladas en los logs
+subprocess.run(["pip", "list"])
+
 
 # Configuración de la página
 st.set_page_config(page_title="Bagash AI", page_icon="🐼")

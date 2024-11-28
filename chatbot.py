@@ -79,17 +79,20 @@ def area_chat():
     with contenedorDelChat:
         mostrar_historial()
 
-# Generar respuesta del modelo
+# Generar respuesta del modelo con validación
 def generar_respuesta(chat_completo):
     respuesta_completa = ""
     for frase in chat_completo:
         try:
-            if hasattr(frase.choices[0], "delta") and "content" in frase.choices[0].delta:
+            # Mostrar la estructura de la respuesta para depuración
+            st.write("Debug - Respuesta cruda:", frase)
+
+            if "choices" in frase and "delta" in frase.choices[0] and "content" in frase.choices[0].delta:
                 contenido = frase.choices[0].delta["content"]
                 respuesta_completa += contenido
                 yield contenido
             else:
-                st.error("Error en la estructura de la respuesta: 'delta' o 'content' no encontrado.")
+                st.error("Respuesta inesperada. Verifica la estructura.")
         except Exception as e:
             st.error(f"Error al procesar la respuesta: {e}")
     return respuesta_completa
@@ -141,6 +144,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 

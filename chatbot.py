@@ -76,7 +76,6 @@ def generar_respuesta(chat_completo):
             yield frase.choices[0].delta.content
     return respuesta_completa
 
-
 # Generar audio con gTTS
 def generar_audio(texto):
     try:
@@ -93,6 +92,7 @@ def main():
     modelo = configurar_pagina()
     clienteUsuario = crear_usuario_groq()
     inicializar_estado()
+    area_chat()
 
 
     # Capturar mensaje del usuario

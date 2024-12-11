@@ -87,11 +87,10 @@ def generar_audio(texto):
         st.error(f"Error al generar el audio: {e}")
         return None
 
-# Función principal
 def main():
     modelo = configurar_pagina()
     clienteUsuario = crear_usuario_groq()
-    inicializar_estado()
+    inicializar_estado() #Captura el mensaje del usuario
     area_chat()
 
 

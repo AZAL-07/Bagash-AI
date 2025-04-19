@@ -173,6 +173,7 @@ def main():
                                    label_visibility="collapsed")
     
     if archivo:
+<<<<<<< HEAD
         texto_archivo = procesar_archivo(archivo)
         accion = st.radio("Selecciona qué deseas hacer con el archivo:",
                           ["Extraer texto", "Analizar contenido", "Generar resumen"])
@@ -194,6 +195,26 @@ def main():
             st.rerun()
 
     # Ahora gestionamos el mensaje de texto
+=======
+     texto_archivo = procesar_archivo(archivo)
+    accion = st.radio("Selecciona qué deseas hacer con el archivo:",
+                      ["Extraer texto", "Analizar contenido", "Generar resumen"])
+    
+    if st.button("Confirmar acción"):
+        if accion == "Extraer texto":
+            actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
+            audio_path = generar_audio(texto_archivo, idioma_codigo)
+            st.session_state.audio_path = audio_path
+        elif accion == "Analizar contenido":
+            actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
+            st.session_state.audio_path = None
+        elif accion == "Generar resumen":
+            actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
+            st.session_state.audio_path = None
+        st.session_state.archivo_subido = None
+        st.session_state.accion_archivo = None
+        st.rerun()
+>>>>>>> cb9ecac (ac)
 
     if st.button("Enviar"):
         if mensaje.strip():

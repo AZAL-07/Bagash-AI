@@ -194,8 +194,8 @@ def main():
             st.rerun()
 
 
-        if st.button("Enviar"):
-          if mensaje.strip():
+    if st.button("Enviar"):
+       if mensaje.strip():
             if idioma_codigo != "en":
                 mensaje = traducir_texto(mensaje, "auto", idioma_codigo)
             actualizar_historial("user", mensaje, "👦")

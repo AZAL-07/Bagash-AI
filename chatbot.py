@@ -130,11 +130,14 @@ def traducir_texto(texto, idioma_origen, idioma_destino):
         return None
 
 
+
+# Procesar el archivo cargado
 def procesar_archivo(archivo):
     try:
         if archivo.type in ["image/png", "image/jpeg", "image/jpg"]:
             imagen = Image.open(archivo)
-            return pytesseract.image_to_string(imagen, lang="eng").strip()
+            texto = pytesseract.image_to_string(imagen, lang="eng").strip()
+            return texto
         elif archivo.type == "pdf":
             reader = PdfReader(archivo)
             texto = "".join([page.extract_text() for page in reader.pages])
@@ -152,6 +155,23 @@ def procesar_archivo(archivo):
     except Exception as e:
         return f"Error al procesar el archivo: {e}"
 
+# Interfaz de Streamlit
+st.title("Aplicación de procesamiento de archivos y generación de audio")
+
+# Subir archivo
+archivo_subido = st.file_uploader("Sube un archivo (imagen, PDF, video)", type=["png", "jpg", "jpeg", "pdf", "mp4"])
+
+# Procesar el archivo y generar audio
+if archivo_subido:
+    texto_extraido = procesar_archivo(archivo_subido)
+    st.write("Texto extraído del archivo:")
+    st.write(texto_extraido)
+    
+    if texto_extraido:
+        # Generar audio solo si hay texto
+        archivo_audio = generar_audio(texto_extraido, 'es')  # Español como idioma
+        if archivo_audio:
+            st.audio(archivo_audio, format="audio/mp3")
 
 def main():
     modelo, idioma_codigo = configurar_pagina()

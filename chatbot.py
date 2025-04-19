@@ -214,7 +214,5 @@ def main():
     if st.session_state.audio_path:
         st.audio(st.session_state.audio_path, format="audio/mp3")  # Reproduce el audio
 
-
-
 if __name__ == "__main__":
     main()

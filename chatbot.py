@@ -156,6 +156,7 @@ def procesar_archivo(archivo):
         return "Error procesando archivo."
 
 
+
 def main():
     modelo, idioma_codigo = configurar_pagina()
     clienteUsuario = crear_usuario_groq()
@@ -173,28 +174,24 @@ def main():
     
     if archivo:
         texto_archivo = procesar_archivo(archivo)
-        # Agregar las opciones de acción disponibles
         accion = st.radio("Selecciona qué deseas hacer con el archivo:",
                           ["Extraer texto", "Analizar contenido", "Generar resumen"])
 
         if st.button("Confirmar acción"):
             if accion == "Extraer texto":
                 actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
-                audio_path = generar_audio(texto_archivo, idioma_codigo)
+                audio_path = generar_audio(texto_archivo, idioma_codigo)  # Genera audio
                 if audio_path:
                     st.session_state.audio_path = audio_path  # Guarda el audio en el estado
             elif accion == "Analizar contenido":
-                # Agregar aquí el código de análisis que desees
                 actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
                 st.session_state.audio_path = None
             elif accion == "Generar resumen":
-                # Agregar el código para generar un resumen aquí
-                resumen = texto_archivo[:100]  # Este es un ejemplo de un resumen
-                actualizar_historial("assistant", f"Resumen: {resumen}...", "🤖")
+                actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
                 st.session_state.audio_path = None
             st.session_state.archivo_subido = None
             st.session_state.accion_archivo = None
-            # No llamamos a rerun para evitar el reinicio inesperado
+            st.rerun()
 
     # Ahora gestionamos el mensaje de texto
     if st.button("Enviar"):
@@ -214,7 +211,6 @@ def main():
     # Mostrar el audio si existe
     if st.session_state.audio_path:
         st.audio(st.session_state.audio_path, format="audio/mp3")  # Reproduce el audio
-
 
 
 if __name__ == "__main__":

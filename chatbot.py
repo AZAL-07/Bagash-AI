@@ -194,6 +194,7 @@ def main():
             st.rerun()
 
     # Ahora gestionamos el mensaje de texto
+
     if st.button("Enviar"):
         if mensaje.strip():
             if idioma_codigo != "en":
@@ -206,11 +207,13 @@ def main():
             if audio_path:
                 st.audio(audio_path, format="audio/mp3")
 
+
     mostrar_historial()
 
     # Mostrar el audio si existe
     if st.session_state.audio_path:
         st.audio(st.session_state.audio_path, format="audio/mp3")  # Reproduce el audio
+
 
 
 if __name__ == "__main__":

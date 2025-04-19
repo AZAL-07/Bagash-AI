@@ -155,23 +155,6 @@ def procesar_archivo(archivo):
     except Exception as e:
         return f"Error al procesar el archivo: {e}"
 
-# Interfaz de Streamlit
-st.title("Aplicación de procesamiento de archivos y generación de audio")
-
-# Subir archivo
-archivo_subido = st.file_uploader("Sube un archivo (imagen, PDF, video)", type=["png", "jpg", "jpeg", "pdf", "mp4"])
-
-# Procesar el archivo y generar audio
-if archivo_subido:
-    texto_extraido = procesar_archivo(archivo_subido)
-    st.write("Texto extraído del archivo:")
-    st.write(texto_extraido)
-    
-    if texto_extraido:
-        # Generar audio solo si hay texto
-        archivo_audio = generar_audio(texto_extraido, 'es')  # Español como idioma
-        if archivo_audio:
-            st.audio(archivo_audio, format="audio/mp3")
 
 def main():
     modelo, idioma_codigo = configurar_pagina()
@@ -185,28 +168,6 @@ def main():
 
     with col1:
         mensaje = st.text_area("Escribí tu mensaje:")
-
-
-    with col2:
-        archivo = st.file_uploader("Sube tu archivo (imagen, PDF, video):",
-                                   type=["png", "jpg", "jpeg", "pdf", "mp4"],
-                                   label_visibility="collapsed")
-
-
-    if archivo:
-        texto_archivo = procesar_archivo(archivo)
-        accion = st.radio("Selecciona qué deseas hacer con el archivo:",
-                          ["Extraer texto", "Analizar contenido", "Generar resumen"])
-        if st.button("Confirmar acción"):
-            if accion == "Extraer texto":
-                actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
-            elif accion == "Analizar contenido":
-                actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
-            elif accion == "Generar resumen":
-                actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
-            st.session_state.archivo_subido = None
-            st.session_state.accion_archivo = None
-            st.rerun()
 
 
     if st.button("Enviar"):

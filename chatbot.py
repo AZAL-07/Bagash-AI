@@ -129,31 +129,32 @@ def traducir_texto(texto, idioma_origen, idioma_destino):
         st.error(f"Error al traducir: {e}")
         return None
 
-
-
-# Procesar el archivo cargado
 def procesar_archivo(archivo):
     try:
-        if archivo.type in ["image/png", "image/jpeg", "image/jpg"]:
+        nombre_archivo = archivo.name.lower()
+
+        if nombre_archivo.endswith((".png", ".jpg", ".jpeg")):
             imagen = Image.open(archivo)
-            texto = pytesseract.image_to_string(imagen, lang="eng").strip()
+            texto = pytesseract.image_to_string(imagen)
             return texto
-        elif archivo.type == "pdf":
-            reader = PdfReader(archivo)
-            texto = "".join([page.extract_text() for page in reader.pages])
-            return texto.strip()
-        elif archivo.type == "mp4":
-            video = cv2.VideoCapture(archivo.name)
-            if not video.isOpened():
-                return "Error al abrir el archivo de video."
-            fps = video.get(cv2.CAP_PROP_FPS)
-            total_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
-            duracion = total_frames / fps
-            return f"Duración del video: {duracion:.2f} segundos"
+
+        elif nombre_archivo.endswith(".pdf"):
+            pdf = PdfReader(archivo)
+            texto = ""
+            for pagina in pdf.pages:
+                texto += pagina.extract_text() or ""
+            return texto.strip() or "No se pudo extraer texto del PDF."
+
+        elif nombre_archivo.endswith(".mp4"):
+            return "Análisis de video aún no implementado."
+
         else:
-            return "Tipo de archivo no soportado."
+            return "Tipo de archivo no compatible."
+
     except Exception as e:
-        return f"Error al procesar el archivo: {e}"
+        st.error(f"Error al procesar archivo: {e}")
+        return "Error procesando archivo."
+
 
 
 def main():
@@ -170,8 +171,31 @@ def main():
         mensaje = st.text_area("Escribí tu mensaje:")
 
 
-    if st.button("Enviar"):
-        if mensaje.strip():
+    with col2:
+        archivo = st.file_uploader("Sube tu archivo (imagen, PDF, video):",
+                                   type=["png", "jpg", "jpeg", "pdf", "mp4"],
+                                   label_visibility="collapsed")
+    if archivo:
+        texto_archivo = procesar_archivo(archivo)
+        accion = st.radio("Selecciona qué deseas hacer con el archivo:",
+                          ["Extraer texto", "Analizar contenido", "Generar resumen"])
+        if st.button("Confirmar acción"):
+            if accion == "Extraer texto":
+                actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
+                audio_path = generar_audio(texto_archivo, idioma_codigo)
+                if audio_path:
+                    st.audio(audio_path, format="audio/mp3")
+            elif accion == "Analizar contenido":
+                actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
+            elif accion == "Generar resumen":
+                actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
+            st.session_state.archivo_subido = None
+            st.session_state.accion_archivo = None
+            st.rerun()
+
+
+        if st.button("Enviar"):
+          if mensaje.strip():
             if idioma_codigo != "en":
                 mensaje = traducir_texto(mensaje, "auto", idioma_codigo)
             actualizar_historial("user", mensaje, "👦")
@@ -183,7 +207,7 @@ def main():
                 st.audio(audio_path, format="audio/mp3")
 
 
-    mostrar_historial()
+mostrar_historial()
 
 
 if __name__ == "__main__":

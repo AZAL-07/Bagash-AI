@@ -207,7 +207,7 @@ def main():
                 st.audio(audio_path, format="audio/mp3")
 
 
-mostrar_historial()
+    mostrar_historial()
 
 
 if __name__ == "__main__":

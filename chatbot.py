@@ -8,17 +8,12 @@ from PIL import Image
 import pytesseract
 from PyPDF2 import PdfReader
 
-
-
-
 # Configuración de Tesseract OCR
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
 
 # Configuración de la página
 st.set_page_config(page_title="Bagash AI", page_icon="🐼")
 st.title("Bagash AI")
-
 
 # Idiomas disponibles para gTTS
 IDIOMAS = {
@@ -34,20 +29,14 @@ IDIOMAS = {
     "Coreano": "ko",
 }
 
-
 # Modelos simulados
 MODELOS = ['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768']
-
 
 # Crear directorio temporal para audio
 if not os.path.exists("temp"):
     os.makedirs("temp")
 
-
-
-
 # Funciones principales
-
 
 def configurar_pagina():
     st.sidebar.title("Configuración de la IA")
@@ -56,56 +45,10 @@ def configurar_pagina():
     idioma_codigo = IDIOMAS[idioma_seleccionado]
     return modelo, idioma_codigo
 
-
 def crear_usuario_groq():
     claveSecreta = st.secrets["CLAVE_API"]
     return Groq(api_key=claveSecreta)
 
-
-def configurar_modelo(cliente, modelo, mensajeDeEntrada):
-    return cliente.chat.completions.create(
-        model=modelo,
-        messages=[{"role": "user", "content": mensajeDeEntrada}],
-        stream=True
-    )
-
-
-def inicializar_estado():
-    if "mensajes" not in st.session_state:
-        st.session_state.mensajes = []
-    if "audio_path" not in st.session_state:
-        st.session_state.audio_path = None
-    if "mostrar_audio" not in st.session_state:
-        st.session_state.mostrar_audio = False
-    if "archivo_subido" not in st.session_state:
-        st.session_state.archivo_subido = None
-    if "accion_archivo" not in st.session_state:
-        st.session_state.accion_archivo = None
-
-
-def actualizar_historial(rol, contenido, avatar):
-    st.session_state.mensajes.append({"role": rol, "content": contenido, "avatar": avatar})
-
-
-def mostrar_historial():
-    for mensaje in st.session_state.mensajes:
-        with st.chat_message(mensaje["role"], avatar=mensaje["avatar"]):
-            st.markdown(mensaje["content"])
-
-
-
-
-
-def generar_respuesta(chat_completo):
-    respuesta_completa = ""
-    for frase in chat_completo:
-        if hasattr(frase, "choices") and frase.choices[0].delta.content:  # Validación adicional
-            respuesta_completa += frase.choices[0].delta.content
-            yield frase.choices[0].delta.content  # Respuestas incrementales
-    return respuesta_completa
-
-
-# Generar audio
 def generar_audio(texto, idioma_codigo):
     try:
         if not texto.strip():
@@ -118,24 +61,17 @@ def generar_audio(texto, idioma_codigo):
         st.error(f"Error al generar el audio: {e}")
         return None
 
-
-# Función para traducir texto con GoogleTranslator
-def traducir_texto(texto, idioma_origen, idioma_destino):
-    try:
-        traducido = GoogleTranslator(source=idioma_origen, target=idioma_destino).translate(texto)
-        return traducido
-    except Exception as e:
-        st.error(f"Error al traducir: {e}")
-        return None
-
 def procesar_archivo(archivo):
+    # Verificamos si el archivo es None (no se subió ningún archivo)
     if archivo is None:
         st.error("No se ha subido ningún archivo.")
         return "No se ha subido ningún archivo."
 
     try:
+        # Accedemos al nombre del archivo
         nombre_archivo = archivo.name.lower()
 
+        # Verificamos el tipo de archivo y procesamos según corresponda
         if nombre_archivo.endswith((".png", ".jpg", ".jpeg")):
             imagen = Image.open(archivo)
             texto = pytesseract.image_to_string(imagen)
@@ -161,7 +97,14 @@ def procesar_archivo(archivo):
 def main():
     modelo, idioma_codigo = configurar_pagina()
     clienteUsuario = crear_usuario_groq()
-    inicializar_estado()
+
+    # Inicializar el estado de la sesión
+    if "mensajes" not in st.session_state:
+        st.session_state.mensajes = []
+    if "audio_path" not in st.session_state:
+        st.session_state.audio_path = None
+    if "archivo_subido" not in st.session_state:
+        st.session_state.archivo_subido = None
 
     col1, col2 = st.columns([2, 2])
 
@@ -172,44 +115,60 @@ def main():
         archivo = st.file_uploader("Sube tu archivo (imagen, PDF, video):",
                                    type=["png", "jpg", "jpeg", "pdf", "mp4"],
                                    label_visibility="collapsed")
-    
+
     if archivo:
         texto_archivo = procesar_archivo(archivo)
-        accion = st.radio("Selecciona qué deseas hacer con el archivo:",
-                          ["Extraer texto", "Analizar contenido", "Generar resumen"])
+
+        # Solo mostramos la opción "Extraer texto"
+        accion = st.radio("Selecciona qué deseas hacer con el archivo:", ["Extraer texto"], key="accion_unica_1")
 
         if st.button("Confirmar acción"):
             if accion == "Extraer texto":
-                actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
+                # Mostrar el texto extraído
+                st.session_state.mensajes.append({"role": "assistant", "content": f"Texto extraído: {texto_archivo}", "avatar": "🤖"})
+                
+                # Generar el audio con el texto extraído
                 audio_path = generar_audio(texto_archivo, idioma_codigo)
+                
+                # Reproducir el audio si se genera correctamente
                 if audio_path:
                     st.session_state.audio_path = audio_path
-            elif accion == "Analizar contenido":
-                actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
-                st.session_state.audio_path = None
-            elif accion == "Generar resumen":
-                actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
-                st.session_state.audio_path = None
-            st.session_state.archivo_subido = None
-            st.session_state.accion_archivo = None
-            st.rerun()
+                    st.audio(audio_path, format="audio/mp3")  # Reproduce el audio
 
-    if st.button("Enviar"):
-        if mensaje.strip():
-            if idioma_codigo != "en":
-                mensaje = traducir_texto(mensaje, "auto", idioma_codigo)
-            actualizar_historial("user", mensaje, "👦")
-            chat_completo = configurar_modelo(clienteUsuario, modelo, mensaje)
-            respuesta_completa = "".join(generar_respuesta(chat_completo))
-            actualizar_historial("assistant", respuesta_completa, "🤖")
-            audio_path = generar_audio(respuesta_completa, idioma_codigo)
-            if audio_path:
-                st.audio(audio_path, format="audio/mp3")
+                # Limpiar el estado de la sesión para los próximos archivos
+                st.session_state.archivo_subido = None
+                st.session_state.accion_archivo = None
+                st.rerun()  # Recargar la página para refrescar los estados
 
-    mostrar_historial()
+    # Enviar mensaje (esto es para mensajes de texto)
+    if st.button("Enviar") and mensaje.strip():
+        # Actualizar el historial con el mensaje
+        st.session_state.mensajes.append({"role": "user", "content": mensaje, "avatar": "👦"})
 
-    if st.session_state.audio_path:
-        st.audio(st.session_state.audio_path, format="audio/mp3")
+        # Llamar al modelo Groq
+        chat_completo = clienteUsuario.chat.completions.create(
+            model=modelo,
+            messages=[{"role": "user", "content": mensaje}],
+            stream=True
+        )
+        
+        respuesta_completa = ""
+        for frase in chat_completo:
+            if hasattr(frase, "choices") and frase.choices[0].delta.content:
+                respuesta_completa += frase.choices[0].delta.content
+
+        # Mostrar la respuesta del modelo
+        st.session_state.mensajes.append({"role": "assistant", "content": respuesta_completa, "avatar": "🤖"})
+
+        # Generar y reproducir el audio para la respuesta del modelo
+        audio_path = generar_audio(respuesta_completa, idioma_codigo)
+        if audio_path:
+            st.audio(audio_path, format="audio/mp3")
+
+    # Mostrar historial de conversación
+    for mensaje in st.session_state.mensajes:
+        with st.chat_message(mensaje["role"], avatar=mensaje["avatar"]):
+            st.markdown(mensaje["content"])
 
 if __name__ == "__main__":
     main()

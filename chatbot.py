@@ -6,7 +6,6 @@ from deep_translator import GoogleTranslator
 import os
 from PIL import Image
 import pytesseract
-import cv2
 from PyPDF2 import PdfReader
 
 # Configuración de Tesseract OCR

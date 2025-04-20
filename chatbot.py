@@ -8,9 +8,8 @@ from PIL import Image
 import pytesseract
 from PyPDF2 import PdfReader
 
-# Configuración de Tesseract OCR — solo si es Windows
-if os.name == 'nt':
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Configuración de Tesseract OCR
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Configuración de la página
 st.set_page_config(page_title="Bagash AI", page_icon="🐼")
@@ -43,12 +42,15 @@ def configurar_pagina():
     modelo = st.sidebar.selectbox('Elegí un Modelo', options=MODELOS, index=0)
     idioma_seleccionado = st.sidebar.selectbox("Selecciona el idioma:", options=IDIOMAS.keys())
     idioma_codigo = IDIOMAS[idioma_seleccionado]
+    
+    # Mostramos clave cargada para debug
+    st.sidebar.write("CLAVE_API cargada:", st.secrets["CLAVE_API"]) 
+    
     return modelo, idioma_codigo
 
 def crear_usuario_groq():
     claveSecreta = st.secrets["CLAVE_API"]
     return Groq(api_key=claveSecreta)
-
 
 def configurar_modelo(cliente, modelo, mensajeDeEntrada):
     return cliente.chat.completions.create(

@@ -173,7 +173,6 @@ def main():
                                    label_visibility="collapsed")
     
     if archivo:
-<<<<<<< HEAD
         texto_archivo = procesar_archivo(archivo)
         accion = st.radio("Selecciona qué deseas hacer con el archivo:",
                           ["Extraer texto", "Analizar contenido", "Generar resumen"])
@@ -195,8 +194,8 @@ def main():
             st.rerun()
 
     # Ahora gestionamos el mensaje de texto
-=======
-     texto_archivo = procesar_archivo(archivo)
+
+    texto_archivo = procesar_archivo(archivo)
     accion = st.radio("Selecciona qué deseas hacer con el archivo:",
                       ["Extraer texto", "Analizar contenido", "Generar resumen"])
     
@@ -214,7 +213,7 @@ def main():
         st.session_state.archivo_subido = None
         st.session_state.accion_archivo = None
         st.rerun()
->>>>>>> cb9ecac (ac)
+
 
     if st.button("Enviar"):
         if mensaje.strip():

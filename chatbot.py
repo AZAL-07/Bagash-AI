@@ -6,7 +6,6 @@ from deep_translator import GoogleTranslator
 import os
 from PIL import Image
 import pytesseract
-import cv2
 from PyPDF2 import PdfReader
 
 # Configuración de Tesseract OCR
@@ -38,7 +37,6 @@ if not os.path.exists("temp"):
     os.makedirs("temp")
 
 # Funciones principales
-
 def configurar_pagina():
     st.sidebar.title("Configuración de la IA")
     modelo = st.sidebar.selectbox('Elegí un Modelo', options=MODELOS, index=0)
@@ -85,7 +83,6 @@ def generar_respuesta(chat_completo):
             yield frase.choices[0].delta.content
     return respuesta_completa
 
-# Generar audio
 def generar_audio(texto, idioma_codigo):
     try:
         if not texto.strip():
@@ -98,7 +95,6 @@ def generar_audio(texto, idioma_codigo):
         st.error(f"Error al generar el audio: {e}")
         return None
 
-# Función para traducir texto
 def traducir_texto(texto, idioma_origen, idioma_destino):
     try:
         traducido = GoogleTranslator(source=idioma_origen, target=idioma_destino).translate(texto)
@@ -154,7 +150,6 @@ def main():
     
     if archivo:
         texto_archivo = procesar_archivo(archivo)
-
         accion = st.radio("Selecciona qué deseas hacer con el archivo:",
                           ["Extraer texto"],
                           key="accion_unica_1")
@@ -166,9 +161,9 @@ def main():
                 if audio_path:
                     st.session_state.audio_path = audio_path
                     st.audio(audio_path, format="audio/mp3")
-
                 st.session_state.archivo_subido = None
                 st.session_state.accion_archivo = None
+                st.rerun()
 
     if st.button("Enviar"):
         if mensaje.strip():

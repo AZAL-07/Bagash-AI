@@ -130,15 +130,15 @@ def main():
                 # Generar el audio con el texto extraído
                 audio_path = generar_audio(texto_archivo, idioma_codigo)
                 
-                # Reproducir el audio si se genera correctamente
+                # Verificar si el audio fue generado correctamente
                 if audio_path:
                     st.session_state.audio_path = audio_path
-                    st.audio(audio_path, format="audio/mp3")  # Reproduce el audio
+                    st.audio(audio_path, format="audio/mp3")  # Reproducir el audio
 
                 # Limpiar el estado de la sesión para los próximos archivos
                 st.session_state.archivo_subido = None
                 st.session_state.accion_archivo = None
-                st.rerun()  # Recargar la página para refrescar los estados
+                st.experimental_rerun()  # Recargar la página para refrescar los estados
 
     # Enviar mensaje (esto es para mensajes de texto)
     if st.button("Enviar") and mensaje.strip():
@@ -169,6 +169,10 @@ def main():
     for mensaje in st.session_state.mensajes:
         with st.chat_message(mensaje["role"], avatar=mensaje["avatar"]):
             st.markdown(mensaje["content"])
+
+    # Reproducir el audio si existe en la sesión
+    if st.session_state.audio_path:
+        st.audio(st.session_state.audio_path, format="audio/mp3")  # Reproduce el audio
 
 if __name__ == "__main__":
     main()

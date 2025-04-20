@@ -46,17 +46,9 @@ def configurar_pagina():
     return modelo, idioma_codigo
 
 def crear_usuario_groq():
-    try:
-        claveSecreta = st.secrets["CLAVE_API"]
-        if not claveSecreta:
-            st.error("La CLAVE_API no está configurada.")
-            st.stop()
-        else:
-            st.markdown("**CLAVE_API cargada: ✅**")
-        return Groq(api_key=claveSecreta)
-    except Exception as e:
-        st.error(f"Error cargando la CLAVE_API: {e}")
-        st.stop()
+    claveSecreta = st.secrets["CLAVE_API"]
+    return Groq(api_key=claveSecreta)
+
 
 def configurar_modelo(cliente, modelo, mensajeDeEntrada):
     return cliente.chat.completions.create(

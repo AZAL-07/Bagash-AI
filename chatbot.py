@@ -170,5 +170,9 @@ def main():
         with st.chat_message(mensaje["role"], avatar=mensaje["avatar"]):
             st.markdown(mensaje["content"])
 
+       # Reproducir el audio si existe en la sesión
+    if st.session_state.audio_path:
+        st.audio(st.session_state.audio_path, format="audio/mp3")  # Reproduce el audio
+        
 if __name__ == "__main__":
     main()

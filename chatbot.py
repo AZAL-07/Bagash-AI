@@ -130,9 +130,16 @@ def traducir_texto(texto, idioma_origen, idioma_destino):
         return None
 
 def procesar_archivo(archivo):
+    # Verificamos si el archivo es None (no se subió ningún archivo)
+    if archivo is None:
+        st.error("No se ha subido ningún archivo.")
+        return "No se ha subido ningún archivo."
+
     try:
+        # Accedemos al nombre del archivo
         nombre_archivo = archivo.name.lower()
 
+        # Verificamos el tipo de archivo y procesamos según corresponda
         if nombre_archivo.endswith((".png", ".jpg", ".jpeg")):
             imagen = Image.open(archivo)
             texto = pytesseract.image_to_string(imagen)
@@ -155,8 +162,6 @@ def procesar_archivo(archivo):
         st.error(f"Error al procesar archivo: {e}")
         return "Error procesando archivo."
 
-
-
 def main():
     modelo, idioma_codigo = configurar_pagina()
     clienteUsuario = crear_usuario_groq()
@@ -173,25 +178,25 @@ def main():
                                    label_visibility="collapsed")
     
     if archivo:
-        texto_archivo = procesar_archivo(archivo)
-        accion = st.radio("Selecciona qué deseas hacer con el archivo:",
-                          ["Extraer texto", "Analizar contenido", "Generar resumen"])
-
-        if st.button("Confirmar acción"):
-            if accion == "Extraer texto":
-                actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
-                audio_path = generar_audio(texto_archivo, idioma_codigo)  # Genera audio
-                if audio_path:
-                    st.session_state.audio_path = audio_path  # Guarda el audio en el estado
-            elif accion == "Analizar contenido":
-                actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
-                st.session_state.audio_path = None
-            elif accion == "Generar resumen":
-                actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
-                st.session_state.audio_path = None
-            st.session_state.archivo_subido = None
-            st.session_state.accion_archivo = None
-            st.rerun()
+     texto_archivo = procesar_archivo(archivo)
+    accion = st.radio("Selecciona qué deseas hacer con el archivo:",
+                      ["Extraer texto", "Analizar contenido", "Generar resumen"])
+    
+    if st.button("Confirmar acción"):
+        if accion == "Extraer texto":
+            actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
+            audio_path = generar_audio(texto_archivo, idioma_codigo)  # Genera audio
+            if audio_path:
+                st.session_state.audio_path = audio_path  # Guarda el audio en el estado
+        elif accion == "Analizar contenido":
+            actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
+            st.session_state.audio_path = None
+        elif accion == "Generar resumen":
+            actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
+            st.session_state.audio_path = None
+        st.session_state.archivo_subido = None
+        st.session_state.accion_archivo = None
+        st.rerun()
 
     # Ahora gestionamos el mensaje de texto
 

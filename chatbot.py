@@ -43,8 +43,7 @@ def configurar_pagina():
     idioma_seleccionado = st.sidebar.selectbox("Selecciona el idioma:", options=IDIOMAS.keys())
     idioma_codigo = IDIOMAS[idioma_seleccionado]
     
-    # Mostramos clave cargada para debug
-    st.sidebar.write("CLAVE_API cargada:", st.secrets["CLAVE_API"]) 
+
     
     return modelo, idioma_codigo
 

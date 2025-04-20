@@ -47,6 +47,7 @@ def configurar_pagina():
 
 def crear_usuario_groq():
     claveSecreta = st.secrets["CLAVE_API"]
+    st.write(f"CLAVE_API cargada: {'✅' if claveSecreta else '❌'}")
     return Groq(api_key=claveSecreta)
 
 def configurar_modelo(cliente, modelo, mensajeDeEntrada):

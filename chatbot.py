@@ -6,7 +6,6 @@ from deep_translator import GoogleTranslator
 import os
 from PIL import Image
 import pytesseract
-import cv2
 from PyPDF2 import PdfReader
 
 
@@ -194,7 +193,7 @@ def main():
         st.session_state.archivo_subido = None
         st.session_state.accion_archivo = None
         st.rerun()
-        
+
     # Ahora gestionamos el mensaje de texto
 
     texto_archivo = procesar_archivo(archivo)

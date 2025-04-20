@@ -8,7 +8,6 @@ from PIL import Image
 import pytesseract
 from PyPDF2 import PdfReader
 
-# Configuración de Tesseract OCR
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Configuración de la página
@@ -173,6 +172,6 @@ def main():
        # Reproducir el audio si existe en la sesión
     if st.session_state.audio_path:
         st.audio(st.session_state.audio_path, format="audio/mp3")  # Reproduce el audio
-        
+
 if __name__ == "__main__":
     main()

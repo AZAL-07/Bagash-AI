@@ -9,17 +9,12 @@ import pytesseract
 import cv2
 from PyPDF2 import PdfReader
 
-
-
-
 # Configuración de Tesseract OCR
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
 
 # Configuración de la página
 st.set_page_config(page_title="Bagash AI", page_icon="🐼")
 st.title("Bagash AI")
-
 
 # Idiomas disponibles para gTTS
 IDIOMAS = {
@@ -35,20 +30,14 @@ IDIOMAS = {
     "Coreano": "ko",
 }
 
-
 # Modelos simulados
 MODELOS = ['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768']
-
 
 # Crear directorio temporal para audio
 if not os.path.exists("temp"):
     os.makedirs("temp")
 
-
-
-
 # Funciones principales
-
 
 def configurar_pagina():
     st.sidebar.title("Configuración de la IA")
@@ -57,11 +46,9 @@ def configurar_pagina():
     idioma_codigo = IDIOMAS[idioma_seleccionado]
     return modelo, idioma_codigo
 
-
 def crear_usuario_groq():
     claveSecreta = st.secrets["CLAVE_API"]
     return Groq(api_key=claveSecreta)
-
 
 def configurar_modelo(cliente, modelo, mensajeDeEntrada):
     return cliente.chat.completions.create(
@@ -69,7 +56,6 @@ def configurar_modelo(cliente, modelo, mensajeDeEntrada):
         messages=[{"role": "user", "content": mensajeDeEntrada}],
         stream=True
     )
-
 
 def inicializar_estado():
     if "mensajes" not in st.session_state:
@@ -83,28 +69,21 @@ def inicializar_estado():
     if "accion_archivo" not in st.session_state:
         st.session_state.accion_archivo = None
 
-
 def actualizar_historial(rol, contenido, avatar):
     st.session_state.mensajes.append({"role": rol, "content": contenido, "avatar": avatar})
-
 
 def mostrar_historial():
     for mensaje in st.session_state.mensajes:
         with st.chat_message(mensaje["role"], avatar=mensaje["avatar"]):
             st.markdown(mensaje["content"])
 
-
-
-
-
 def generar_respuesta(chat_completo):
     respuesta_completa = ""
     for frase in chat_completo:
-        if hasattr(frase, "choices") and frase.choices[0].delta.content:  # Validación adicional
+        if hasattr(frase, "choices") and frase.choices[0].delta.content:
             respuesta_completa += frase.choices[0].delta.content
-            yield frase.choices[0].delta.content  # Respuestas incrementales
+            yield frase.choices[0].delta.content
     return respuesta_completa
-
 
 # Generar audio
 def generar_audio(texto, idioma_codigo):
@@ -119,8 +98,7 @@ def generar_audio(texto, idioma_codigo):
         st.error(f"Error al generar el audio: {e}")
         return None
 
-
-# Función para traducir texto con GoogleTranslator
+# Función para traducir texto
 def traducir_texto(texto, idioma_origen, idioma_destino):
     try:
         traducido = GoogleTranslator(source=idioma_origen, target=idioma_destino).translate(texto)
@@ -130,16 +108,13 @@ def traducir_texto(texto, idioma_origen, idioma_destino):
         return None
 
 def procesar_archivo(archivo):
-    # Verificamos si el archivo es None (no se subió ningún archivo)
     if archivo is None:
         st.error("No se ha subido ningún archivo.")
         return "No se ha subido ningún archivo."
 
     try:
-        # Accedemos al nombre del archivo
         nombre_archivo = archivo.name.lower()
 
-        # Verificamos el tipo de archivo y procesamos según corresponda
         if nombre_archivo.endswith((".png", ".jpg", ".jpeg")):
             imagen = Image.open(archivo)
             texto = pytesseract.image_to_string(imagen)
@@ -162,7 +137,6 @@ def procesar_archivo(archivo):
         st.error(f"Error al procesar archivo: {e}")
         return "Error procesando archivo."
 
-
 def main():
     modelo, idioma_codigo = configurar_pagina()
     clienteUsuario = crear_usuario_groq()
@@ -179,53 +153,22 @@ def main():
                                    label_visibility="collapsed")
     
     if archivo:
-    # Procesamos el archivo para extraer texto
-     texto_archivo = procesar_archivo(archivo)
-    
-    # Mostramos solo la opción "Extraer texto"
-    accion = st.radio("Selecciona qué deseas hacer con el archivo:",
-                      ["Extraer texto"],
-                      key="accion_unica_1")  # Usamos una clave única para evitar el error
+        texto_archivo = procesar_archivo(archivo)
 
-    if st.button("Confirmar acción"):
-        if accion == "Extraer texto":
-            # Mostrar el texto extraído
-            actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
-            
-            # Generar el audio con el texto extraído
-            audio_path = generar_audio(texto_archivo, idioma_codigo)
-            
-            # Verificar si se generó el audio y mostrarlo
-            if audio_path:
-                st.session_state.audio_path = audio_path  # Guarda el audio en el estado
-                st.audio(audio_path, format="audio/mp3")  # Reproduce el audio
+        accion = st.radio("Selecciona qué deseas hacer con el archivo:",
+                          ["Extraer texto"],
+                          key="accion_unica_1")
 
-            st.session_state.archivo_subido = None  # Limpiar archivo subido
-            st.session_state.accion_archivo = None  # Limpiar acción del archivo
-            st.rerun()  # Recargar la página para refrescar los estados
+        if st.button("Confirmar acción"):
+            if accion == "Extraer texto":
+                actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
+                audio_path = generar_audio(texto_archivo, idioma_codigo)
+                if audio_path:
+                    st.session_state.audio_path = audio_path
+                    st.audio(audio_path, format="audio/mp3")
 
-
-    # Ahora gestionamos el mensaje de texto
-
-    texto_archivo = procesar_archivo(archivo)
-    accion = st.radio("Selecciona qué deseas hacer con el archivo:",
-                      ["Extraer texto", "Analizar contenido", "Generar resumen"])
-    
-    if st.button("Confirmar acción"):
-        if accion == "Extraer texto":
-            actualizar_historial("assistant", f"Texto extraído: {texto_archivo}", "🤖")
-            audio_path = generar_audio(texto_archivo, idioma_codigo)
-            st.session_state.audio_path = audio_path
-        elif accion == "Analizar contenido":
-            actualizar_historial("assistant", f"Análisis: {texto_archivo[:100]}...", "🤖")
-            st.session_state.audio_path = None
-        elif accion == "Generar resumen":
-            actualizar_historial("assistant", f"Resumen: {texto_archivo[:100]}...", "🤖")
-            st.session_state.audio_path = None
-        st.session_state.archivo_subido = None
-        st.session_state.accion_archivo = None
-        st.rerun()
-
+                st.session_state.archivo_subido = None
+                st.session_state.accion_archivo = None
 
     if st.button("Enviar"):
         if mensaje.strip():
@@ -239,12 +182,10 @@ def main():
             if audio_path:
                 st.audio(audio_path, format="audio/mp3")
 
-
     mostrar_historial()
 
-    # Mostrar el audio si existe
     if st.session_state.audio_path:
-        st.audio(st.session_state.audio_path, format="audio/mp3")  # Reproduce el audio
+        st.audio(st.session_state.audio_path, format="audio/mp3")
 
 if __name__ == "__main__":
     main()

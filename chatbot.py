@@ -9,6 +9,9 @@ import pytesseract
 from PyPDF2 import PdfReader
 
 
+if os.name == 'nt':  # Si estás en Windows
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
 # Configuración de la página
 st.set_page_config(page_title="Bagash AI", page_icon="🐼")
 st.title("Bagash AI")
@@ -45,7 +48,7 @@ def configurar_pagina():
 
 def crear_usuario_groq():
     claveSecreta = st.secrets["CLAVE_API"]
-    st.write(f" {'✅' if claveSecreta else '❌'}")
+    st.write(f"{'✅' if claveSecreta else '❌'}")
     return Groq(api_key=claveSecreta)
 
 def configurar_modelo(cliente, modelo, mensajeDeEntrada):

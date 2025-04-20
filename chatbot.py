@@ -8,6 +8,7 @@ from PIL import Image
 import pytesseract
 from PyPDF2 import PdfReader
 
+# Configuración de Tesseract OCR
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Configuración de la página

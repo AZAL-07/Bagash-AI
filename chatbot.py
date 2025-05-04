@@ -9,6 +9,16 @@ import pytesseract
 from PyPDF2 import PdfReader
 
 
+
+# Forzar ruta explícita
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+try:
+    version = pytesseract.get_tesseract_version()
+    print("Versión detectada de Tesseract:", version)
+except Exception as e:
+    print("ERROR:", e)
+
 # Configuración de la página
 st.set_page_config(page_title="Bagash AI", page_icon="🐼")
 st.title("Bagash AI")

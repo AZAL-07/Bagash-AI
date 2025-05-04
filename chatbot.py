@@ -48,7 +48,7 @@ def configurar_pagina():
     return modelo, idioma_codigo
 
 def crear_usuario_groq():
-    claveSecreta = st.secrets["key "]
+    claveSecreta = st.secrets["key"]
     return Groq(api_key=claveSecreta)
 
 def configurar_modelo(cliente, modelo, mensajeDeEntrada):
